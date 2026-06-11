@@ -1,0 +1,449 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  :root {
+    --px: #f4f4f4;
+    --px-dark: #111;
+    --px-border: #e0e0e0;
+    --px-muted: #888;
+    --px-accent: #111;
+    --px-win-x: #ff2222;
+    --px-win-o: #22cc44;
+    --px-tie: #cccc00;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --px: #111;
+      --px-dark: #f4f4f4;
+      --px-border: #333;
+      --px-muted: #888;
+      --px-accent: #f4f4f4;
+    }
+  }
+  .px-wrap { font-family: 'Press Start 2P', monospace; background: var(--px); color: var(--px-dark); padding: 16px 12px 20px; image-rendering: pixelated; }
+  .px-title { font-size: 10px; letter-spacing: 2px; text-align: center; margin-bottom: 18px; color: var(--px-dark); opacity: 0.9; text-transform: uppercase; }
+  .px-tabs { display: flex; gap: 4px; margin-bottom: 0; }
+  .px-tab { font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 7px 10px; border: 2px solid var(--px-border); background: var(--px); color: var(--px-muted); cursor: pointer; outline: none; text-transform: uppercase; letter-spacing: 1px; }
+  .px-tab.active { background: var(--px-dark); color: var(--px); border-color: var(--px-dark); }
+  .px-panel { border: 2px solid var(--px-dark); padding: 0; background: var(--px); }
+  .px-code-area { background: var(--px-dark); color: var(--px); font-family: 'Courier New', monospace; font-size: 11.5px; line-height: 1.6; padding: 16px; overflow-x: auto; white-space: pre; max-height: 380px; overflow-y: auto; margin: 0; }
+  .px-result-wrap { padding: 18px 16px; }
+  .px-result-label { font-size: 7px; letter-spacing: 2px; color: var(--px-muted); margin-bottom: 12px; text-transform: uppercase; }
+  .px-boards { display: flex; flex-direction: column; gap: 20px; }
+  .px-board-block { display: flex; flex-direction: column; gap: 8px; }
+  .px-board-title { font-size: 7px; letter-spacing: 1px; text-transform: uppercase; }
+  .px-board-title.win-x { color: var(--px-win-x); }
+  .px-board-title.win-o { color: var(--px-win-o); }
+  .px-board-title.tie { color: var(--px-tie); }
+  .px-board { display: grid; grid-template-columns: repeat(3, 36px); grid-template-rows: repeat(3, 36px); gap: 0; border: 2px solid var(--px-dark); width: fit-content; }
+  .px-cell { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-family: 'Press Start 2P', monospace; border-right: 2px solid var(--px-dark); border-bottom: 2px solid var(--px-dark); background: var(--px); color: var(--px-dark); }
+  .px-cell:nth-child(3n) { border-right: none; }
+  .px-cell:nth-child(7), .px-cell:nth-child(8), .px-cell:nth-child(9) { border-bottom: none; }
+  .px-cell.cx { color: var(--px-win-x); }
+  .px-cell.co { color: var(--px-win-o); }
+  .px-cell.num { color: var(--px-muted); font-size: 9px; }
+  .px-msg { font-size: 7px; letter-spacing: 1px; margin-top: 6px; }
+  .px-msg.win-x { color: var(--px-win-x); }
+  .px-msg.win-o { color: var(--px-win-o); }
+  .px-msg.tie { color: var(--px-tie); }
+  .px-btn-row { display: flex; justify-content: flex-end; padding: 10px 14px 10px; border-top: 2px solid var(--px-dark); background: var(--px); }
+  .px-copy-btn { font-family: 'Press Start 2P', monospace; font-size: 7px; padding: 8px 14px; background: var(--px-dark); color: var(--px); border: 2px solid var(--px-dark); cursor: pointer; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+  .px-copy-btn:hover { opacity: 0.8; }
+  .px-copy-btn.copied { background: #22cc44; border-color: #22cc44; color: #111; }
+  .px-scanline { pointer-events: none; }
+</style>
+<div class="px-wrap">
+  <div class="px-title">[ Tic Tac Toe — C++ ]</div>
+  <div class="px-tabs">
+    <button class="px-tab active" onclick="showTab('code')">Source</button>
+    <button class="px-tab" onclick="showTab('result')">Results</button>
+  </div>
+  <div class="px-panel">
+    <div id="tab-code">
+      <pre class="px-code-area" id="code-block">#include &lt;iostream&gt;
+#include &lt;cstdlib&gt;
+#include &lt;ctime&gt;
+using namespace std;
+
+char board[3][3];
+char player = 'X';
+
+void initBoard()
+{
+    char n = '1';
+    for (int i = 0; i &lt; 3; i++)
+        for (int j = 0; j &lt; 3; j++)
+            board[i][j] = n++;
+}
+
+void printBoard()
+{
+    for (int i = 0; i &lt; 3; i++)
+    {
+        cout &lt;&lt; " ";
+        for (int j = 0; j &lt; 3; j++)
+        {
+            if(board[i][j] == 'X')
+                cout &lt;&lt; "\033[38;2;255;0;0mX\033[0m";
+            else if(board[i][j] == 'O')
+                cout &lt;&lt; "\033[38;2;0;255;0mO\033[0m";
+            else
+                cout &lt;&lt; board[i][j];
+            if(j &lt; 2) cout &lt;&lt; " | ";
+        }
+        cout &lt;&lt; endl;
+        if(i &lt; 2) cout &lt;&lt; "---|---|---" &lt;&lt; endl;
+    }
+}
+
+void playerMove(char player)
+{
+    char pos;
+    while (true)
+    {
+        cout &lt;&lt; "\nPlayer " &lt;&lt; player &lt;&lt; ", enter position(1-9) : ";
+        cin &gt;&gt; pos;
+        for (int i = 0; i &lt; 3; i++)
+            for (int j = 0; j &lt; 3; j++)
+                if(board[i][j] == pos)
+                { board[i][j] = player; return; }
+        cout &lt;&lt; "\nInvalid position!" &lt;&lt; endl;
+    }
+}
+
+bool checkWinner(char player)
+{
+    for (int i = 0; i &lt; 3; i++)
+        if(board[i][0]==player && board[i][1]==player && board[i][2]==player)
+            return true;
+    for (int i = 0; i &lt; 3; i++)
+        if(board[0][i]==player && board[1][i]==player && board[2][i]==player)
+            return true;
+    if(board[0][0]==player && board[1][1]==player && board[2][2]==player)
+        return true;
+    if(board[0][2]==player && board[1][1]==player && board[2][0]==player)
+        return true;
+    return false;
+}
+
+bool checkTie()
+{
+    for (int i = 0; i &lt; 3; i++)
+        for (int j = 0; j &lt; 3; j++)
+            if(board[i][j] &gt;= '1' && board[i][j] &lt;= '9')
+                return false;
+    return true;
+}
+
+void botMove()
+{
+    char cells[9]; int count = 0;
+    for (int i = 0; i &lt; 3; i++)
+        for (int j = 0; j &lt; 3; j++)
+            if(board[i][j] &gt;= '1' && board[i][j] &lt;= '9')
+                cells[count++] = board[i][j];
+    char move = cells[rand() % count];
+    for (int i = 0; i &lt; 3; i++)
+        for (int j = 0; j &lt; 3; j++)
+            if(board[i][j] == move)
+            { board[i][j] = 'O'; return; }
+}
+
+int main()
+{
+    srand(time(0));
+    initBoard();
+    while (true)
+    {
+        system("cls");
+        printBoard();
+        if(player == 'X') playerMove(player);
+        else botMove();
+
+        if(checkWinner(player))
+        {
+            system("cls"); printBoard();
+            if(player == 'X')
+                cout &lt;&lt; "\n\033[38;2;255;0;0m" &lt;&lt; player &lt;&lt; " is the winner!\033[0m" &lt;&lt; endl;
+            else
+                cout &lt;&lt; "\n\033[38;2;0;255;0m" &lt;&lt; player &lt;&lt; " is the winner!\033[0m" &lt;&lt; endl;
+            break;
+        }
+        if(checkTie())
+        {
+            system("cls"); printBoard();
+            cout &lt;&lt; "\n\033[38;2;255;255;0mIt's tie!\033[0m" &lt;&lt; endl;
+            break;
+        }
+        player = (player == 'X') ? 'O' : 'X';
+    }
+    return 0;
+}</pre>
+      <div class="px-btn-row">
+        <button class="px-copy-btn" id="copy-btn" onclick="copyCode()">
+          <i class="ti ti-copy" aria-hidden="true"></i> Copy code
+        </button>
+      </div>
+    </div>
+    <div id="tab-result" style="display:none;">
+      <div class="px-result-wrap">
+        <div class="px-result-label">Sample game outcomes</div>
+        <div class="px-boards">
+          <div class="px-board-block">
+            <div class="px-board-title win-x">▶ X wins — row</div>
+            <div class="px-board">
+              <div class="px-cell cx">X</div><div class="px-cell cx">X</div><div class="px-cell cx">X</div>
+              <div class="px-cell num">4</div><div class="px-cell co">O</div><div class="px-cell num">6</div>
+              <div class="px-cell num">7</div><div class="px-cell co">O</div><div class="px-cell num">9</div>
+            </div>
+            <div class="px-msg win-x">X is the winner!</div>
+          </div>
+          <div class="px-board-block">
+            <div class="px-board-title win-o">▶ O wins — diagonal</div>
+            <div class="px-board">
+              <div class="px-cell co">O</div><div class="px-cell cx">X</div><div class="px-cell num">3</div>
+              <div class="px-cell cx">X</div><div class="px-cell co">O</div><div class="px-cell num">6</div>
+              <div class="px-cell cx">X</div><div class="px-cell num">8</div><div class="px-cell co">O</div>
+            </div>
+            <div class="px-msg win-o">O is the winner!</div>
+          </div>
+          <div class="px-board-block">
+            <div class="px-board-title tie">▶ Tie</div>
+            <div class="px-board">
+              <div class="px-cell cx">X</div><div class="px-cell co">O</div><div class="px-cell cx">X</div>
+              <div class="px-cell cx">X</div><div class="px-cell co">O</div><div class="px-cell co">O</div>
+              <div class="px-cell co">O</div><div class="px-cell cx">X</div><div class="px-cell cx">X</div>
+            </div>
+            <div class="px-msg tie">It's a tie!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const rawCode = `#include <iostream>
+#include <cstdlib>
+#include <ctime>
+using namespace std;
+
+char board[3][3];
+char player = 'X';
+
+void initBoard()
+{
+    char n = '1';
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            board[i][j] = n++;
+        }
+    }
+}
+
+void printBoard()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        cout << " ";
+        for (int j = 0; j < 3; j++)
+        {
+            if(board[i][j] == 'X')
+            {
+                cout << "\\033[38;2;255;0;0mX\\033[0m";
+            }
+            else if(board[i][j] == 'O')
+            {
+                cout << "\\033[38;2;0;255;0mO\\033[0m";
+            }
+            else
+            {
+                cout << board[i][j];
+            }
+            if(j < 2)
+            {
+                cout << " | ";
+            }
+        }
+        cout << endl;
+
+        if(i < 2)
+        {
+            cout << "---|---|---" << endl;
+        }
+    }
+}
+
+void playerMove(char player)
+{
+    char pos;
+
+    while (true)
+    {
+        cout << "\\nPlayer " << player << ", enter position(1-9) : ";
+        cin>>pos;
+
+        for (int i = 0; i < 3; i++)
+        {
+            for (int j = 0; j < 3; j++)
+            {
+                if(board[i][j] == pos)
+                {
+                    board[i][j] = player;
+                    return;
+                }
+            }
+        }
+        cout << "\\nInvalid position!" << endl;
+    }
+}
+
+bool checkWinner(char player)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if(board[i][0] == player &&
+           board[i][1] == player &&
+           board[i][2] == player)
+        {
+            return true;
+        }
+    }
+
+    for (int i = 0; i < 3; i++)
+    {
+        if(board[0][i] == player &&
+           board[1][i] == player &&
+           board[2][i] == player)
+        {
+            return true;
+        }
+    }
+
+    if(board[0][0] == player &&
+       board[1][1] == player &&
+       board[2][2] == player)
+    {
+        return true;
+    }
+
+    if(board[0][2] == player &&
+       board[1][1] == player &&
+       board[2][0] == player)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool checkTie()
+{
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if(board[i][j] >= '1' && board[i][j] <= '9')
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void botMove()
+{
+    char cells[9];
+    int count = 0;
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if(board[i][j] >= '1' && board[i][j] <= '9')
+            {
+                cells[count++] = board[i][j];
+            }
+        }
+    }
+    int index = rand() % count;
+    char move = cells[index];
+
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if(board[i][j] == move)
+            {
+                board[i][j] = 'O';
+                return;
+            }
+        }
+    }
+}
+
+int main(){
+
+    srand(time(0));
+    initBoard();
+
+    while (true)
+    {
+        system("cls");
+        printBoard();
+
+        if(player == 'X')
+            playerMove(player);
+        else
+            botMove();
+
+        if(checkWinner(player))
+        {
+            system("cls");
+            printBoard();
+            if(player == 'X')
+            {
+                cout << "\\n\\033[38;2;255;0;0m" << player << " is the winner!\\033[0m" << endl;
+            }
+            else
+            {
+                cout << "\\n\\033[38;2;0;255;0m" << player << " is the winner!\\033[0m" << endl;
+            }
+            break;
+        }
+
+        if(checkTie())
+        {
+            system("cls");
+            printBoard();
+            cout << "\\n\\033[38;2;255;255;0mIt's tie!\\033[0m" << endl;
+            break;
+        }
+
+        player = (player == 'X') ? 'O' : 'X';
+    }
+    
+    return 0;
+}`;
+
+function showTab(t) {
+  document.getElementById('tab-code').style.display = t === 'code' ? '' : 'none';
+  document.getElementById('tab-result').style.display = t === 'result' ? '' : 'none';
+  document.querySelectorAll('.px-tab').forEach((el, i) => {
+    el.classList.toggle('active', (i === 0 && t === 'code') || (i === 1 && t === 'result'));
+  });
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(rawCode).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.classList.add('copied');
+    btn.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i> Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<i class="ti ti-copy" aria-hidden="true"></i> Copy code';
+    }, 2000);
+  });
+}
+</script>
